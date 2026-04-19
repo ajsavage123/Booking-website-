@@ -1,0 +1,78 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap');
+@import "tailwindcss";
+
+:root {
+  --brand-gradient: linear-gradient(135deg, #0d9488 0%, #0f766e 50%, #115e59 100%);
+  --shadow-brand: 0 4px 24px -4px rgba(14, 148, 136, 0.3);
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  color: #1a2438;
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-display { font-family: 'Cormorant Garamond', serif; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.animate-fade-up { animation: fadeUp 0.5s ease forwards; }
+.animate-fade-in { animation: fadeIn 0.4s ease forwards; }
+.animate-scale-in { animation: scaleIn 0.3s ease forwards; }
+
+.stagger-1 { animation-delay: 0.05s; }
+.stagger-2 { animation-delay: 0.1s; }
+.stagger-3 { animation-delay: 0.15s; }
+.stagger-4 { animation-delay: 0.2s; }
+
+.gradient-text {
+  background: var(--brand-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.btn-brand {
+  background: var(--brand-gradient);
+  box-shadow: var(--shadow-brand);
+  transition: all 0.2s ease;
+  display: inline-block;
+}
+.btn-brand:hover { transform: translateY(-1px); box-shadow: 0 6px 28px -4px rgba(14,148,136,0.4); }
+.btn-brand:active { transform: translateY(0); }
+
+.card-hover { transition: all 0.25s ease; }
+.card-hover:hover { transform: translateY(-2px); box-shadow: 0 8px 30px -6px rgba(0,0,0,0.12); }
+
+.input-ring { transition: all 0.2s ease; }
+.input-ring:focus { outline: none; border-color: #0d9488; box-shadow: 0 0 0 3px rgba(13,148,136,0.15); }
+
+/* Day picker overrides */
+.rdp-root {
+  --rdp-accent-color: #0d9488 !important;
+  --rdp-accent-background-color: #f0fdf9 !important;
+}
+.rdp-day_button { border-radius: 8px !important; }
+
+.badge-pending { background: #fef9c3; color: #854d0e; border: 1px solid #fde68a; }
+.badge-confirmed { background: #dcfce7; color: #14532d; border: 1px solid #bbf7d0; }
+.badge-cancelled { background: #fee2e2; color: #7f1d1d; border: 1px solid #fecaca; }
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #f1f5f9; }
+::-webkit-scrollbar-thumb { background: #0d9488; border-radius: 3px; }
