@@ -12,7 +12,7 @@ export function generateWhatsAppLink(
   date: string,
   time: string
 ): string {
-  const clinicPhone = "601234567890";
+  const clinicPhone = "9492827058";
   const message = encodeURIComponent(
     `Hello, I just booked an appointment!\n\n` +
       `📋 *Booking Details*\n` +
