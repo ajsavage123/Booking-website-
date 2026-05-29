@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase-server";
 import { cookies } from "next/headers";
 import { BookingStatus } from "@/types";
+import { mockDb } from "@/lib/mock-db";
 
 // PATCH /api/bookings/[id] — update booking status
 export async function PATCH(
@@ -24,20 +24,18 @@ export async function PATCH(
     return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("bookings")
-    .update({ status })
-    .eq("id", id);
-
-  if (error) {
+  try {
+    const updated = await mockDb.updateBookingStatus(id, status);
+    if (!updated) {
+        return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     return NextResponse.json(
       { error: "Failed to update booking" },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ success: true });
 }
 
 // DELETE /api/bookings/[id] — delete a booking
@@ -52,18 +50,16 @@ export async function DELETE(
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("bookings")
-    .delete()
-    .eq("id", params.id);
-
-  if (error) {
+  try {
+    const success = await mockDb.deleteBooking(params.id);
+    if (!success) {
+        return NextResponse.json({ error: "Booking not found" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
     return NextResponse.json(
       { error: "Failed to delete booking" },
       { status: 500 }
     );
   }
-
-  return NextResponse.json({ success: true });
 }

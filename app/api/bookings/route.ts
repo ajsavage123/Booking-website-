@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createAdminClient } from "@/lib/supabase-server";
 import { cookies } from "next/headers";
+import { mockDb } from "@/lib/mock-db";
 
 // GET /api/bookings — list bookings (admin only)
 export async function GET(req: NextRequest) {
@@ -15,23 +15,17 @@ export async function GET(req: NextRequest) {
   const date = searchParams.get("date");
   const status = searchParams.get("status");
 
-  const supabase = createAdminClient();
-  let query = supabase
-    .from("bookings")
-    .select("*")
-    .order("date", { ascending: true })
-    .order("time", { ascending: true });
-
-  if (date) query = query.eq("date", date);
-  if (status) query = query.eq("status", status);
-
-  const { data, error } = await query;
-
-  if (error) {
+  try {
+    const data = await mockDb.getBookings({ date, status });
+    // Sort by date and time
+    data.sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return a.time.localeCompare(b.time);
+    });
+    return NextResponse.json({ bookings: data || [] });
+  } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
-
-  return NextResponse.json({ bookings: data || [] });
 }
 
 // POST /api/bookings — create a new booking
@@ -68,25 +62,9 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const supabase = createAdminClient();
-
     // Check for double booking — same date + time slot already booked (not cancelled)
-    const { data: existing, error: checkError } = await supabase
-      .from("bookings")
-      .select("id")
-      .eq("date", date)
-      .eq("time", time)
-      .neq("status", "cancelled")
-      .maybeSingle();
-
-    if (checkError) {
-      return NextResponse.json(
-        { error: "Failed to check availability" },
-        { status: 500 }
-      );
-    }
-
-    if (existing) {
+    const existingSlots = await mockDb.getBookedSlots(date, service);
+    if (existingSlots.includes(time)) {
       return NextResponse.json(
         {
           error:
@@ -97,28 +75,14 @@ export async function POST(req: NextRequest) {
     }
 
     // Insert booking
-    const { data, error } = await supabase
-      .from("bookings")
-      .insert([
-        {
-          name: name.trim(),
-          phone: cleanPhone,
-          service,
-          date,
-          time,
-          notes: notes?.trim() || null,
-          status: "pending",
-        },
-      ])
-      .select("id")
-      .single();
-
-    if (error) {
-      return NextResponse.json(
-        { error: "Failed to create booking" },
-        { status: 500 }
-      );
-    }
+    const data = await mockDb.createBooking({
+        name: name.trim(),
+        phone: cleanPhone,
+        service,
+        date,
+        time,
+        notes: notes?.trim() || null,
+    });
 
     return NextResponse.json({ success: true, id: data.id }, { status: 201 });
   } catch {
